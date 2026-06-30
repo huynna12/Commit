@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Commit (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Commit (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
