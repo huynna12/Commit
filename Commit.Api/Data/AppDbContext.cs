@@ -12,6 +12,7 @@ namespace Commit.Api.Data
         public DbSet<Challenge> Challenges { get; set; }
         public DbSet<Milestone> Milestones { get; set; }
         public DbSet<CheckIn> CheckIns { get; set; }
+        public DbSet<Post> Posts { get; set; }
         public DbSet<ChallengeParticipant> ChallengeParticipants { get; set; }
         public DbSet<MilestoneAchievement> MilestoneAchievements { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -52,9 +53,14 @@ namespace Commit.Api.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            builder.Entity<Post>()
+                .HasIndex(p => p.CheckInId)
+                .IsUnique();
+
             builder.Entity<CheckIn>(entity =>
             {
-                entity.HasKey(checkIn => new { checkIn.ChallengeId, checkIn.AppUserId, checkIn.CheckInDate });
+                entity.HasIndex(checkIn => new { checkIn.ChallengeId, checkIn.AppUserId, checkIn.CheckInDate })
+                    .IsUnique();
 
                 entity.HasOne(c => c.Challenge)
                     .WithMany()
