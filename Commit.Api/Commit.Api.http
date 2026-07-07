@@ -17,8 +17,8 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5197/api/auth/refresh-token 
+POST http://localhost:5197/api/auth/refresh-token
 Content-Type: application/json
 {
-  "refreshToken": "cyUck4c6hoGlb50mnmu5ZoNmzMC+78iOxDPdV72zpCpIlbz54My3AUkAsrjwwZTPJu5SCBD/LBKtf2YStwkpdg=="
+  "refreshToken": "PASTE_YOUR_OWN_TOKEN_HERE"
 }
