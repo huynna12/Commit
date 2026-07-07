@@ -5,10 +5,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="Commit.Api/Commit.Api.csproj" />
-  <Project Path="Commit/Commit.csproj">
-    <Platform Solution="*|ARM64" Project="ARM64" />
-    <Platform Solution="*|x64" Project="x64" />
-    <Platform Solution="*|x86" Project="x86" />
-    <Deploy />
-  </Project>
+  <Project Path="Commit.Mobile/Commit.Mobile.csproj" Id="aad961f4-8773-4c34-abab-f00e78a0cdb5" />
 </Solution>
