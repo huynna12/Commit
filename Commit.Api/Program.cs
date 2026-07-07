@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Commit.Api.Data;
 using Commit.Api.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Commit.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AppDbContext") ?? throw new InvalidOperationException("Connection string 'AppDbContext' not found");
@@ -16,8 +20,31 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
-var app = builder.Build();
+// Configures how incoming requests are authenticated: 
+// request's JWT is checked against our issuer/audience/key 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
+// Registers the TokenService class with the dependency injection container,
+// allowing it to be injected into controllers or other services where needed.
+// The AddScoped method specifies that a new instance of TokenService will
+// be created for each HTTP request.
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<NameGeneratorService>();
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

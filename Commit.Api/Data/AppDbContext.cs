@@ -14,7 +14,7 @@ namespace Commit.Api.Data
         public DbSet<CheckIn> CheckIns { get; set; }
         public DbSet<ChallengeParticipant> ChallengeParticipants { get; set; }
         public DbSet<MilestoneAchievement> MilestoneAchievements { get; set; }
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         // Override the OnModelCreating method to configure
         // composite keys and relationships
@@ -25,10 +25,15 @@ namespace Commit.Api.Data
             {
                 entity.HasKey(cp => new { cp.ChallengeId, cp.AppUserId });
 
+
                 entity.HasOne(cp => cp.Challenge)
                     .WithMany(c => c.Participants)
                     .OnDelete(DeleteBehavior.Cascade);
 
+              // Try to delete AppUser
+              //→ SQL Server checks: does this user have ChallengeParticipant rows?
+              //  → Yes → ERROR, deletion blocked, nothing happens
+              //  → No  → user gets deleted
                 entity.HasOne(cp => cp.User)
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
