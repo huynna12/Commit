@@ -7,5 +7,12 @@ public class AppUser : IdentityUser
     public string? AvatarUrl { get; set; }
     public string? Bio { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public PlanTier PlanTier { get; set; } = PlanTier.Free;
+}
+
+public enum PlanTier
+{
+    Free,
+    Plus
 }
 
