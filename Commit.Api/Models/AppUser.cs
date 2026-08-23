@@ -8,6 +8,7 @@ public class AppUser : IdentityUser
     public string? Bio { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public PlanTier PlanTier { get; set; } = PlanTier.Free;
+    public bool IsDeleted { get; set; } = false;
 }
 
 public enum PlanTier

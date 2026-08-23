@@ -73,11 +73,6 @@ namespace Commit.Api.Controllers
             {
                 return NotFound();
             }
-
-            if (challenge.)
-            {
-
-            }
             return ChallengeToDto(challenge);
         }
 

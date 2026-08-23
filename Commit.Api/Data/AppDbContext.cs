@@ -16,6 +16,7 @@ namespace Commit.Api.Data
         public DbSet<ChallengeParticipant> ChallengeParticipants { get; set; }
         public DbSet<MilestoneAchievement> MilestoneAchievements { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<JoinRequest> JoinRequests { get; set; }
 
         // Override the OnModelCreating method to configure
         // composite keys and relationships
@@ -67,6 +68,17 @@ namespace Commit.Api.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(c => c.AppUser)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<JoinRequest>(entity =>
+            {
+                entity.HasOne(jr => jr.Challenge)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(jr => jr.AppUser)
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
             });
