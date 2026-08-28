@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Commit.Api.Services;
+using Commit.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AppDbContext") ?? throw new InvalidOperationException("Connection string 'AppDbContext' not found");
@@ -19,6 +20,10 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlServer(connectionString));
 builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
+
+// Account types
+builder.Services.Configure<PlanLimitsOptions>(
+    builder.Configuration.GetSection("PlanLimits"));
 
 // Configures how incoming requests are authenticated: 
 // request's JWT is checked against our issuer/audience/key 
@@ -45,6 +50,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<NameGeneratorService>();
 
 var app = builder.Build();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

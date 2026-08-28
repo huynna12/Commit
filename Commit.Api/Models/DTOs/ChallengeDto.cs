@@ -10,5 +10,6 @@
         public string? Description { get; set; }
         public string OwnerId { get; set; } = null!;
         public DayOfWeek[] ScheduleDays { get; set; } = [];
+        public JoinPolicy JoinPolicy { get; set; } = JoinPolicy.Open;
     }
 }

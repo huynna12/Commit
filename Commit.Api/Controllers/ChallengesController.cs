@@ -27,6 +27,7 @@ namespace Commit.Api.Controllers
             StartDate = challenge.StartDate,
             DurationInDays = challenge.DurationInDays,
             ScheduleDays = challenge.ScheduleDays,
+            JoinPolicy = challenge.JoinPolicy,
             MaxParticipants = challenge.MaxParticipants,
             OwnerId = challenge.OwnerId
         };
@@ -43,6 +44,7 @@ namespace Commit.Api.Controllers
                 StartDate = dto.StartDate,
                 DurationInDays = dto.DurationInDays,
                 MaxParticipants = dto.MaxParticipants,
+                JoinPolicy = dto.JoinPolicy,
                 ScheduleDays = dto.ScheduleDays,
                 OwnerId = userId
             };
@@ -100,6 +102,56 @@ namespace Commit.Api.Controllers
                                 .Select(cp => cp.Challenge)
                                 .ToListAsync();
             return challenges.Select(ChallengeToDto).ToList();
+        }
+
+        [HttpPost("{id}/join")]
+        public async Task<IActionResult> JoinChallenge(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            var challenge = await _context.Challenges.FindAsync(id);
+            if (challenge == null) return NotFound();  
+
+            var existingParticipant = await _context.ChallengeParticipants
+                .FirstOrDefaultAsync(cp => cp.ChallengeId == id && cp.AppUserId == userId);
+            if (existingParticipant != null) return BadRequest("Already joined this challenge.");
+
+            var count = await _context.ChallengeParticipants.CountAsync(cp => cp.ChallengeId == id);
+            if (challenge.MaxParticipants != null && count >= challenge.MaxParticipants) return BadRequest("Challenge is full.");
+
+            switch (challenge.JoinPolicy) 
+            {
+                case JoinPolicy.Open:
+                    var participant = new ChallengeParticipant
+                    {
+                        ChallengeId = id,
+                        AppUserId = userId
+                    };
+                    _context.ChallengeParticipants.Add(participant);
+                    await _context.SaveChangesAsync();
+                    return Ok("Joined challenge successfully.");    
+                case JoinPolicy.InviteOnly:
+                    return BadRequest("This challenge is invite-only.");
+                case JoinPolicy.RequiresApproval:
+                    var hasPending = await _context.JoinRequests
+                        .AnyAsync(jr => jr.AppUserId == userId
+                                     && jr.ChallengeId == id
+                                     && jr.RequestStatus == Status.Pending);
+                    if (hasPending) return BadRequest("You have already requested to join this challenge."); 
+                    
+                    var joinRequest = new JoinRequest
+                    {
+                        ChallengeId = id,
+                        AppUserId = userId,
+                        RequestStatus = Status.Pending
+                    };
+                    _context.JoinRequests.Add(joinRequest);
+                    await _context.SaveChangesAsync();
+                    return Ok("Join request submitted successfully.");
+
+                default: 
+                    return BadRequest("Invalid join policy.");
+            }
         }
     }
 }
